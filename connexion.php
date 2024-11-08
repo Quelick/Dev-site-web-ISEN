@@ -1,6 +1,48 @@
 <?php
 session_start();
-// Traitement de la connexion ici (par exemple, vérification des identifiants)
+
+// Connexion à la base de données
+$host = 'localhost'; // Changez si nécessaire
+$dbname = 'parc_animalier'; // Nom de votre base de données
+$username = 'root'; // Remplacez par votre nom d'utilisateur de base de données
+$password = ''; // Remplacez par votre mot de passe de base de données
+
+try {
+    // Établir la connexion à la base de données
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Erreur de connexion : " . $e->getMessage());
+}
+
+// Traitement du formulaire de connexion
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Récupérer les informations du formulaire
+    $email = htmlspecialchars($_POST['email']);
+    $motdepasse = $_POST['motdepasse']; // Mot de passe saisi par l'utilisateur
+
+    // Vérification des identifiants
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM utilisateurs WHERE email = ?");
+        $stmt->execute([$email]);
+        $utilisateur = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($utilisateur && password_verify($motdepasse, $utilisateur['motdepasse'])) {
+            // Identifiants corrects, démarrer la session
+            $_SESSION['user_id'] = $utilisateur['id'];
+            $_SESSION['nom'] = $utilisateur['nom'];
+            $_SESSION['prenom'] = $utilisateur['prenom'];
+
+            // Redirection vers la page de bienvenue
+            header("Location: bienvenue.php"); // Redirige vers la page de bienvenue
+            exit();
+        } else {
+            echo "Email ou mot de passe incorrect.";
+        }
+    } catch (PDOException $e) {
+        echo "Erreur lors de la connexion : " . $e->getMessage();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -66,7 +108,7 @@ session_start();
 <body>
     <div class="container">
         <h1>Se connecter</h1>
-        <form action="profil.php" method="POST">
+        <form action="" method="POST"> <!-- Action vide pour renvoyer au même script -->
             <label for="email">Email :</label>
             <input type="email" id="email" name="email" required>
             

@@ -1,5 +1,46 @@
 <?php
 session_start();
+
+// Connexion à la base de données
+$host = 'localhost'; // Changez si nécessaire
+$dbname = 'parc_animalier'; // Nom de votre base de données
+$username = 'root'; // Remplacez par votre nom d'utilisateur de base de données
+$password = ''; // Remplacez par votre mot de passe de base de données
+
+try {
+    // Établir la connexion à la base de données
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Erreur de connexion : " . $e->getMessage());
+}
+
+// Traitement du formulaire
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Récupérer les informations du formulaire
+    $nom = htmlspecialchars($_POST['nom']);
+    $prenom = htmlspecialchars($_POST['prenom']);
+    $age = htmlspecialchars($_POST['age']);
+    $email = htmlspecialchars($_POST['email']);
+    $motdepasse = $_POST['motdepasse']; // Ne pas hacher le mot de passe
+
+    // Insertion dans la base de données
+    try {
+        $stmt = $pdo->prepare("INSERT INTO utilisateurs (nom, prenom, age, email, motdepasse) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$nom, $prenom, $age, $email, $motdepasse]);
+
+        // Démarrer la session et stocker les informations de l'utilisateur
+        $_SESSION['user_id'] = $pdo->lastInsertId(); // ID de l'utilisateur nouvellement créé
+        $_SESSION['nom'] = $nom;
+        $_SESSION['prenom'] = $prenom;
+
+        // Redirection vers la page de bienvenue
+        header("Location: bienvenue.php"); // Redirige vers la page de bienvenue
+        exit();
+    } catch (PDOException $e) {
+        echo "Erreur lors de l'enregistrement : " . $e->getMessage();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -67,7 +108,7 @@ session_start();
 <body>
     <div class="container">
         <h1>Créer un Profil</h1>
-        <form action="profil.php" method="POST">
+        <form action="" method="POST"> <!-- Action vide pour renvoyer au même script -->
             <label for="nom">Nom:</label>
             <input type="text" id="nom" name="nom" required>
             
