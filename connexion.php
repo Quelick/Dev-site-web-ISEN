@@ -8,7 +8,6 @@ $username = 'root'; // Remplacez par votre nom d'utilisateur de base de données
 $password = ''; // Remplacez par votre mot de passe de base de données
 
 try {
-    // Établir la connexion à la base de données
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
@@ -27,7 +26,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute([$email]);
         $utilisateur = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($utilisateur && password_verify($motdepasse, $utilisateur['motdepasse'])) {
+        // Vérifiez si l'utilisateur existe et comparez le mot de passe
+        if ($utilisateur && $motdepasse === $utilisateur['motdepasse']) { // Comparaison directe
             // Identifiants corrects, démarrer la session
             $_SESSION['user_id'] = $utilisateur['id'];
             $_SESSION['nom'] = $utilisateur['nom'];
