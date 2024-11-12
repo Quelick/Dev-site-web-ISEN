@@ -10,8 +10,8 @@ if (!isset($_SESSION['user_id'])) {
 // Récupérer les informations de l'utilisateur depuis la session
 $nom = $_SESSION['nom'];
 $prenom = $_SESSION['prenom'];
-$age = ''; // Vous pouvez récupérer l'âge depuis la base de données si nécessaire
-$email = ''; // Vous pouvez récupérer l'email depuis la base de données si nécessaire
+$age = '';
+$email = '';
 
 // Connexion à la base de données
 $host = 'localhost'; 
@@ -64,15 +64,28 @@ if ($utilisateur) {
         p {
             margin: 10px 0;
         }
-        a {
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .button-container a {
             display: inline-block;
             padding: 10px 15px;
-            background-color: #007BFF;
             color: white;
             text-decoration: none;
             border-radius: 4px;
         }
-        a:hover {
+        .back-button {
+            background-color: #4CAF50; /* Vert pour le bouton de retour */
+        }
+        .back-button:hover {
+            background-color: #45a049;
+        }
+        .logout-button {
+            background-color: #007BFF;
+        }
+        .logout-button:hover {
             background-color: #0056b3;
         }
     </style>
@@ -84,7 +97,12 @@ if ($utilisateur) {
         <p><strong>Prénom:</strong> <?php echo htmlspecialchars($prenom); ?></p>
         <p><strong>Âge:</strong> <?php echo htmlspecialchars($age); ?></p>
         <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
-        <a href="deconnexion.php">Se déconnecter</a>
+
+        <!-- Boutons de retour et de déconnexion -->
+        <div class="button-container">
+            <a href="index.php" class="back-button">Retour à l'accueil</a>
+            <a href="deconnexion.php" class="logout-button">Se déconnecter</a>
+        </div>
     </div>
 </body>
 </html>

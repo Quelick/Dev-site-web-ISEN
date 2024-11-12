@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['prenom'] = $utilisateur['prenom'];
 
             // Redirection vers la page de bienvenue
-            header("Location: bienvenue.php"); // Redirige vers la page de bienvenue
+            header("Location: index.php"); // Redirige vers la page de l'index
             exit();
         } else {
             echo "Email ou mot de passe incorrect.";

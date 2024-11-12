@@ -1,5 +1,27 @@
 <?php
 session_start();
+$host = 'localhost';
+$dbname = 'parc_animalier';
+$username = 'root';
+$password = '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Erreur de connexion : " . $e->getMessage());
+}
+
+// Si l'utilisateur est connecté, récupérer son âge depuis la base de données
+$userAge = null;
+if (isset($_SESSION['user_id'])) {
+    $stmt = $pdo->prepare("SELECT age FROM utilisateurs WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($user) {
+        $userAge = $user['age'];
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -50,18 +72,35 @@ session_start();
         input[type="submit"]:hover {
             background-color: #0056b3;
         }
-        .logout-button {
-            margin: 20px 0;
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .back-button, .logout-button, .login-button {
             padding: 10px 15px;
-            background-color: #FF4C4C; /* Rouge pour la déconnexion */
-            color: white;
             text-decoration: none;
+            color: white;
             border-radius: 4px;
-            text-align: center;
             display: inline-block;
         }
+        .back-button {
+            background-color: #4CAF50; /* Vert pour le bouton de retour */
+        }
+        .back-button:hover {
+            background-color: #45a049;
+        }
+        .logout-button {
+            background-color: #FF4C4C; /* Rouge pour la déconnexion */
+        }
         .logout-button:hover {
-            background-color: #C0392B; /* Rouge foncé au survol */
+            background-color: #C0392B;
+        }
+        .login-button {
+            background-color: #007BFF; /* Bleu pour le bouton de connexion */
+        }
+        .login-button:hover {
+            background-color: #0056b3;
         }
         .price-display {
             margin-top: 20px;
@@ -72,10 +111,20 @@ session_start();
 </head>
 <body>
     <div class="container">
+        <!-- Boutons de retour, connexion et déconnexion -->
+        <div class="button-container">
+            <a href="index.php" class="back-button">Retour à l'accueil</a>
+            
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <!-- Bouton de déconnexion pour les utilisateurs connectés -->
+                <a href="deconnexion.php" class="logout-button">Déconnexion</a>
+            <?php else: ?>
+                <!-- Bouton de connexion pour les utilisateurs non connectés -->
+                <a href="connexion.php" class="login-button">Connexion</a>
+            <?php endif; ?>
+        </div>
+
         <h1>Achat de Billet</h1>
-        
-        <!-- Bouton de déconnexion -->
-        <a href="deconnexion.php" class="logout-button">Déconnexion</a>
 
         <?php if (isset($_SESSION['user_id'])): ?>
             <!-- Formulaire pour les utilisateurs connectés -->
@@ -83,10 +132,22 @@ session_start();
                 <h2>Paiement</h2>
                 <p>Vous êtes connecté en tant que <?php echo htmlspecialchars($_SESSION['prenom']) . ' ' . htmlspecialchars($_SESSION['nom']); ?></p>
                 
-                <label for="age">Âge :</label>
-                <input type="number" id="age" name="age" required min="0" onchange="updatePrice()">
+                <!-- Affichage de l'âge et du prix directement sans champ de saisie pour l'âge -->
+                <p>Âge : <?php echo $userAge; ?> ans</p>
 
-                <div class="price-display" id="priceDisplay"></div>
+                <div class="price-display" id="priceDisplay">
+                    <?php
+                    $price = 0;
+                    if ($userAge < 10) {
+                        $price = 0; // Gratuit pour les moins de 10 ans
+                    } elseif ($userAge >= 10 && $userAge < 18) {
+                        $price = 10; // 10€ pour les 10 à 18 ans
+                    } else {
+                        $price = 15; // 15€ pour les 18 ans et plus
+                    }
+                    echo "Montant à payer : " . $price . "€";
+                    ?>
+                </div>
 
                 <label for="mode_paiement">Mode de paiement :</label>
                 <select id="mode_paiement" name="mode_paiement" required>
@@ -133,9 +194,9 @@ session_start();
             if (age < 10) {
                 price = 0; // Gratuit pour les moins de 10 ans
             } else if (age >= 10 && age < 18) {
-                price = 10; // 10$ pour les 10 à 18 ans
+                price = 10; // 10€ pour les 10 à 18 ans
             } else {
-                price = 15; // 15$ pour les 18 ans et plus
+                price = 15; // 15€ pour les 18 ans et plus
             }
 
             priceDisplay.innerText = "Montant à payer : " + price + "€";
