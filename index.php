@@ -16,27 +16,27 @@
             color: white;
             padding: 20px;
             text-align: center;
-            position: relative; /* Position relative pour le positionnement des boutons */
+            position: relative;
         }
         .profile-button, .ticket-button {
-            position: absolute; /* Position absolue pour les placer en haut à gauche */
-            top: 20px; /* Espace depuis le haut */
-            left: 20px; /* Espace depuis la gauche */
+            position: absolute;
+            top: 20px;
+            left: 20px;
             padding: 10px 15px;
             background-color: white;
             color: #007BFF;
             text-decoration: none;
             border-radius: 4px;
-            border: 2px solid #007BFF; /* Bordure colorée */
+            border: 2px solid #007BFF;
             font-weight: bold;
-            transition: background-color 0.3s, color 0.3s; /* Effet de transition */
+            transition: background-color 0.3s, color 0.3s;
         }
         .profile-button:hover, .ticket-button:hover {
-            background-color: #0056b3; /* Changement de couleur au survol */
-            color: white; /* Changement de couleur du texte */
+            background-color: #0056b3;
+            color: white;
         }
         .ticket-button {
-            top: 60px; /* Positionnement du bouton d'achat de billet juste en dessous du profil */
+            top: 60px;
         }
         .container {
             width: 80%;
@@ -52,17 +52,15 @@
         .section {
             margin: 20px 0;
         }
-        .activities, .contact {
+        .activities {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 20px;
         }
         .activity {
-            flex: 1 1 30%; /* Change the percentage based on your layout preference */
-            margin: 10px;
+            flex: 1 1 45%;
             padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 8px;
             background-color: #f9f9f9;
         }
         footer {
@@ -78,12 +76,59 @@
             max-width: 100%;
             border-radius: 5px;
         }
+        .slideshow-container {
+            position: relative;
+            max-width: 100%;
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .mySlides, .mySlides2 {
+            display: none;
+        }
+        .slideshow-container img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            padding: 16px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: background-color 0.3s;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            transform: translateY(-50%);
+            user-select: none;
+        }
+        .prev:hover, .next:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .prev {
+            left: 10px;
+        }
+        .next {
+            right: 10px;
+        }
+        .fade {
+            animation-name: fade;
+            animation-duration: 1.5s;
+        }
+        @keyframes fade {
+            from {opacity: .4} 
+            to {opacity: 1}
+        }
     </style>
 </head>
 <body>
     <header>
-        <a href="profil.php" class="profile-button">Mon Profil</a> <!-- Bouton Mon Profil en haut à gauche -->
-        <a href="achat_billet.php" class="ticket-button">Achat de Billet</a> <!-- Bouton Achat de Billet -->
+        <a href="profil.php" class="profile-button">Mon Profil</a>
+        <a href="achat_billet.php" class="ticket-button">Achat de Billet</a>
         <h1>Bienvenue au Parc Animalier</h1>
         <p>Un lieu unique pour découvrir la faune et la flore.</p>
     </header>
@@ -95,18 +140,52 @@
         </div>
         
         <div class="section activities">
-            <h2>Nos Activités</h2>
             <div class="activity">
-                <h3>Visites Guidées</h3>
-                <p>Participez à nos visites guidées pour en apprendre davantage sur nos animaux et leur habitat.</p>
+                <div class="slideshow-container">
+                    <div class="mySlides fade">
+                        <a href="animaux.php">
+                            <img src="images/girafe.jpg" alt="Image de girafe">
+                        </a>
+                    </div>
+                    <div class="mySlides fade">
+                        <a href="animaux.php">
+                            <img src="images/rhinoceros.jpg" alt="Image de rhinocéros">
+                        </a>
+                    </div>
+                    <div class="mySlides fade">
+                        <a href="animaux.php">
+                            <img src="images/cerfs.jpg" alt="Image de cerfs">
+                        </a>
+                    </div>
+                    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+                    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+                </div>
             </div>
             <div class="activity">
-                <h3>Ateliers Éducatifs</h3>
-                <p>Des ateliers pour les enfants et les adultes pour mieux comprendre la biodiversité.</p>
-            </div>
-            <div class="activity">
-                <h3>Animations Spéciales</h3>
-                <p>Venez assister à nos animations et spectacles qui raviront petits et grands.</p>
+                <div class="slideshow-container">
+                    <div class="mySlides2 fade">
+                        <a href="services.php">
+                            <img src="images/boutique.jpg" alt="Image de la boutique">
+                        </a>
+                    </div>
+                    <div class="mySlides2 fade">
+                        <a href="services.php">
+                            <img src="images/restaurant.jpg" alt="Image du restaurant">
+                        </a>
+                    </div>
+                    <div class="mySlides2 fade">
+                        <a href="services.php">
+                            <img src="images/train.jpg" alt="Image du train touristique">
+                        </a>
+                    </div>
+                    <div class="mySlides2 fade">
+                        <a href="services.php">
+                            <img src="images/view.jpg" alt="Vue panoramique">
+                        </a>
+                    </div>
+                    <a class="prev" onclick="plusSlides2(-1)">&#10094;</a>
+                    <a class="next" onclick="plusSlides2(1)">&#10095;</a>
+                </div>
             </div>
         </div>
         
@@ -120,5 +199,43 @@
     <footer>
         <p>&copy; 2024 Parc Animalier. Tous droits réservés.</p>
     </footer>
+
+    <script>
+    let slideIndex = 0;
+    let slideIndex2 = 0;
+    showSlides();
+    showSlides2();
+
+    function plusSlides(n) {
+        showSlides(slideIndex += n);
+    }
+    function plusSlides2(n) {
+        showSlides2(slideIndex2 += n);
+    }
+
+    function showSlides() {
+        let i;
+        let slides = document.getElementsByClassName("mySlides");
+        for (i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
+        }
+        slideIndex++;
+        if (slideIndex > slides.length) {slideIndex = 1}    
+        slides[slideIndex-1].style.display = "block";  
+        setTimeout(showSlides, 3000);
+    }
+
+    function showSlides2() {
+        let i;
+        let slides2 = document.getElementsByClassName("mySlides2");
+        for (i = 0; i < slides2.length; i++) {
+            slides2[i].style.display = "none";  
+        }
+        slideIndex2++;
+        if (slideIndex2 > slides2.length) {slideIndex2 = 1}    
+        slides2[slideIndex2-1].style.display = "block";  
+        setTimeout(showSlides2, 3000);
+    }
+    </script>
 </body>
 </html>
