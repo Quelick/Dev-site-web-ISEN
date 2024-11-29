@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrousel des Services</title>
+    <style>
+        /* Style général de la page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #dcdcdc;  /* Fond plus sombre (gris clair) */
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Style pour le titre */
+        h1 {
+            text-align: center;
+            font-size: 4em;  /* Plus grand titre */
+            color: #6a4e23; /* Marron clair */
+            margin-top: 40px;  /* Un peu plus de marge en haut */
+            margin-bottom: 60px;  /* Un peu plus de marge en bas */
+        }
+
+        /* Style pour le carrousel */
+        .carousel-container {
+            position: relative;
+            width: 70%;  /* Plus large */
+            margin: auto;
+            overflow: hidden;
+        }
+        
+        .carousel-slide {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        
+        .carousel-item {
+            min-width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            padding: 30px;  /* Plus de padding pour espacer les éléments */
+            background-color: #f4f4f4;
+            border-radius: 15px;  /* Coins arrondis plus marqués */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);  /* Ombre pour ajouter du relief */
+        }
+
+        .carousel-item h2 {
+            font-size: 2.5em;  /* Plus grand nom de service */
+            color: #333;  /* Couleur plus sombre pour le contraste */
+            margin-bottom: 20px;
+        }
+
+        .carousel-item p {
+            font-size: 1.5em;  /* Plus grande description */
+            color: #666;  /* Couleur plus claire pour le texte */
+            line-height: 1.6;  /* Améliorer la lisibilité */
+            margin-bottom: 20px;
+        }
+
+        .carousel-item img {
+            width: 80%;  /* Image plus petite pour mieux s'adapter */
+            height: auto;
+            border-radius: 10px;
+            margin-top: 20px;  /* Marge pour espacer l'image du texte */
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+        }
+
+        .nav-button {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 15px;  /* Plus de padding pour les boutons */
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;  /* Coins arrondis */
+        }
+
+        .nav-button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Services du Parc</h1>
+
+    <div class="carousel-container">
+        <div class="carousel-slide" id="carousel-slide">
+            <!-- Les services seront injectés ici -->
+        </div>
+        <div class="carousel-nav">
+            <button class="nav-button" id="prev">←</button>
+            <button class="nav-button" id="next">→</button>
+        </div>
+    </div>
+
+    <script>
+        // Fonction pour récupérer les services
+        fetch("http://localhost/Web_dev_isen/Dev-site-web-ISEN/services.php")
+            .then(response => response.json())  // On s'attend à une réponse JSON
+            .then(services => {
+                const carouselSlide = document.getElementById("carousel-slide");
+
+                // Vérification de la structure des données
+                console.log(services);  // Ajoute un log pour vérifier la structure de 'services'
+
+                services.forEach(service => {
+                    const serviceElement = document.createElement("div");
+                    serviceElement.classList.add("carousel-item");
+                    
+                    // Assure-toi que les noms et descriptions sont correctement récupérés
+                    serviceElement.innerHTML = `
+                        <h2>${service.nom_service || 'Service non défini'}</h2> <!-- Si le nom est indéfini, afficher 'Service non défini' -->
+                        <p>${service.description || 'Description non disponible'}</p> <!-- Même pour la description -->
+                        <img src="${service.image || 'default.jpg'}" alt="${service.nom_service || 'Image indisponible'}"> <!-- Image par défaut si aucune image n'est fournie -->
+                    `;
+                    
+                    carouselSlide.appendChild(serviceElement);
+                });
+
+                let currentIndex = 0;
+
+                // Afficher le service initial
+                const showService = index => {
+                    const slides = document.querySelectorAll(".carousel-item");
+                    const totalSlides = slides.length;
+                    const offset = -(index * 100) + "%";
+                    document.getElementById("carousel-slide").style.transform = `translateX(${offset})`;
+                };
+
+                // Gestion des boutons précédent et suivant
+                document.getElementById("next").addEventListener("click", () => {
+                    if (currentIndex < services.length - 1) {
+                        currentIndex++;
+                    } else {
+                        currentIndex = 0; // Recommencer à partir du premier service
+                    }
+                    showService(currentIndex);
+                });
+
+                document.getElementById("prev").addEventListener("click", () => {
+                    if (currentIndex > 0) {
+                        currentIndex--;
+                    } else {
+                        currentIndex = services.length - 1; // Revenir au dernier service
+                    }
+                    showService(currentIndex);
+                });
+
+                showService(currentIndex);  // Afficher le premier service au départ
+            })
+            .catch(error => console.error("Erreur lors de la récupération des services:", error));
+    </script>
+</body>
+</html>
