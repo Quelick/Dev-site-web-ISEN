@@ -4,65 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des utilisateurs</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h2 {
-            color: #333;
-        }
-        form input, form button {
-            margin: 5px 0;
-            padding: 5px;
-            width: calc(100% - 10px);
-            max-width: 300px;
-        }
-        form button {
-            width: auto;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <h2>Ajouter un utilisateur</h2>
-    <form id="add-user-form">
-        <input type="text" id="nom" placeholder="Nom" required>
-        <input type="text" id="prenom" placeholder="Prénom" required>
-        <input type="number" id="age" placeholder="Âge" required>
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="password" id="motdepasse" placeholder="Mot de passe" required>
-        <button type="submit">Ajouter</button>
-    </form>
-
     <script>
-        // Fonction pour ajouter un utilisateur via le formulaire
-        document.getElementById('add-user-form').addEventListener('submit', function (e) {
-            e.preventDefault();
+        async function ajouterUtilisateur() {
+            const nom = document.getElementById('nom').value;
+            const prenom = document.getElementById('prenom').value;
+            const age = document.getElementById('age').value;
+            const email = document.getElementById('email').value;
+            const motdepasse = document.getElementById('motdepasse').value;
 
-            const formData = new FormData();
-            formData.append('nom', document.getElementById('nom').value);
-            formData.append('prenom', document.getElementById('prenom').value);
-            formData.append('age', document.getElementById('age').value);
-            formData.append('email', document.getElementById('email').value);
-            formData.append('motdepasse', document.getElementById('motdepasse').value);
-
-            fetch('back.php?type=ajouter', {
+            const response = await fetch('back.php?type=ajouter', {
                 method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message) {
-                        alert(data.message);
-                        document.getElementById('add-user-form').reset();
-                    } else if (data.error) {
-                        alert(data.error);
-                    }
-                })
-                .catch(error => console.error('Erreur lors de l\'ajout de l\'utilisateur:', error));
-        });
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `nom=${nom}&prenom=${prenom}&age=${age}&email=${email}&motdepasse=${motdepasse}`
+            });
+
+            const result = await response.json();
+            alert(result.message || result.error);
+        }
+
+        async function verifierConnexion() {
+            const response = await fetch('back.php?type=verifier');
+            const result = await response.json();
+            document.getElementById('connexion-status').textContent = result.message || result.error;
+        }
+
+        async function connecterUtilisateur() {
+            const email = document.getElementById('email').value;
+            const motdepasse = document.getElementById('motdepasse').value;
+
+            const response = await fetch('back.php?type=connexion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `email=${email}&motdepasse=${motdepasse}`
+            });
+
+            const result = await response.json();
+            alert(result.message || result.error);
+            verifierConnexion();
+        }
+
+        async function deconnecterUtilisateur() {
+            const response = await fetch('back.php?type=deconnexion');
+            const result = await response.json();
+            alert(result.message || result.error);
+            verifierConnexion();
+        }
     </script>
+</head>
+<body onload="verifierConnexion()">
+    <h1>Ajouter un utilisateur</h1>
+    <input type="text" id="nom" placeholder="Nom">
+    <input type="text" id="prenom" placeholder="Prénom">
+    <input type="number" id="age" placeholder="Âge">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="motdepasse" placeholder="Mot de passe">
+    <button onclick="ajouterUtilisateur()">Ajouter</button>
+
+    <h2>Vérification de la connexion</h2>
+    <button onclick="connecterUtilisateur()">Se connecter</button>
+    <button onclick="deconnecterUtilisateur()">Déconnexion</button>
+    <p id="connexion-status"></p>
 </body>
 </html>
-

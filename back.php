@@ -1,7 +1,8 @@
 <?php
-// Activer les messages d'erreurs pour le débogage
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+
+session_start();
 
 // Connexion à la base de données
 $host = "localhost";
@@ -19,44 +20,53 @@ if ($conn->connect_error) {
 // Déterminer le type de requête
 $type = isset($_GET['type']) ? $_GET['type'] : '';
 
-// Récupérer la liste des utilisateurs
-if ($type === 'utilisateurs') {
-    $sql = "SELECT * FROM utilisateurs";
-    $result = $conn->query($sql);
-    $utilisateurs = [];
-
-    while ($row = $result->fetch_assoc()) {
-        $utilisateurs[] = $row;
-    }
-
-    echo json_encode($utilisateurs);
-}
-
-// Ajouter un utilisateur
-elseif ($type === 'ajouter' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($type === 'ajouter' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Ajouter un utilisateur
     $nom = $_POST['nom'];
     $prenom = $_POST['prenom'];
     $age = intval($_POST['age']);
     $email = $_POST['email'];
-    $motdepasse = $_POST['motdepasse'];
+    $motdepasse = password_hash($_POST['motdepasse'], PASSWORD_DEFAULT);
 
-    $sql = "INSERT INTO utilisateurs (nom, prenom, age, email, motdepasse) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssiss", $nom, $prenom, $age, $email, $motdepasse);
-
-    if ($stmt->execute()) {
+    $sql = "INSERT INTO utilisateurs (nom, prenom, age, email, motdepasse) VALUES ('$nom', '$prenom', $age, '$email', '$motdepasse')";
+    if ($conn->query($sql) === TRUE) {
         echo json_encode(["message" => "Utilisateur ajouté avec succès."]);
     } else {
-        echo json_encode(["error" => "Erreur lors de l'ajout de l'utilisateur : " . $stmt->error]);
+        echo json_encode(["error" => "Erreur lors de l'ajout de l'utilisateur : " . $conn->error]);
     }
-    $stmt->close();
-}
+} elseif ($type === 'verifier') {
+    // Vérifier si un utilisateur est connecté
+    if (isset($_SESSION['user'])) {
+        echo json_encode(["message" => "Connecté : " . $_SESSION['user']['email']]);
+    } else {
+        echo json_encode(["error" => "Non connecté"]);
+    }
+} elseif ($type === 'connexion' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Connexion d'un utilisateur
+    $email = $_POST['email'];
+    $motdepasse = $_POST['motdepasse'];
 
-// Si aucun type correspondant
-else {
+    $sql = "SELECT * FROM utilisateurs WHERE email = '$email'";
+    $result = $conn->query($sql);
+
+    if ($result->num_rows > 0) {
+        $user = $result->fetch_assoc();
+        if (password_verify($motdepasse, $user['motdepasse'])) {
+            $_SESSION['user'] = $user;
+            echo json_encode(["message" => "Connexion réussie"]);
+        } else {
+            echo json_encode(["error" => "Mot de passe incorrect"]);
+        }
+    } else {
+        echo json_encode(["error" => "Utilisateur non trouvé"]);
+    }
+} elseif ($type === 'deconnexion') {
+    // Déconnexion d'un utilisateur
+    session_destroy();
+    echo json_encode(["message" => "Déconnexion réussie"]);
+} else {
     echo json_encode(["error" => "Requête non valide"]);
 }
 
-// Fermeture de la connexion
 $conn->close();
 ?>
