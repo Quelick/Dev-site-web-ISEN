@@ -3,66 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des utilisateurs</title>
+    <title>Page Utilisateur & Commentaires</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .comment {
+            font-size: 14px;
+        }
+        .comment-author {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ajouter un utilisateur</h1>
+        <input type="text" id="nom" class="form-control" placeholder="Nom">
+        <input type="text" id="prenom" class="form-control" placeholder="Prénom">
+        <input type="number" id="age" class="form-control" placeholder="Âge">
+        <input type="email" id="email" class="form-control" placeholder="Email">
+        <input type="password" id="motdepasse" class="form-control" placeholder="Mot de passe">
+        <button id="btnAjouter">Ajouter</button>
+        <h2>Vérification de la connexion</h2>
+        <p id="statusConnexion">Non connecté.</p>
+        <button id="btnConnexion">Se connecter</button>
+        <button id="btnDeconnexion">Se déconnecter</button>
+    </div>
+
+    <div class="container">
+        <h1>Ajouter un commentaire</h1>
+        <input type="text" id="nomCommentaire" class="form-control" placeholder="Nom">
+        <input type="email" id="emailCommentaire" class="form-control" placeholder="Email">
+        <textarea id="contenuCommentaire" class="form-control" placeholder="Écrivez votre commentaire ici..."></textarea><br>
+        <button id="btnAjouterCommentaire">Ajouter un commentaire</button>
+
+        <h2>Liste des commentaires :</h2>
+        <ul id="listeCommentaires"></ul>
+    </div>
+
     <script>
-        async function ajouterUtilisateur() {
+        /**************************************
+         * Gestion des utilisateurs
+         **************************************/
+        document.getElementById('btnAjouter').addEventListener('click', () => {
             const nom = document.getElementById('nom').value;
             const prenom = document.getElementById('prenom').value;
             const age = document.getElementById('age').value;
             const email = document.getElementById('email').value;
             const motdepasse = document.getElementById('motdepasse').value;
 
-            const response = await fetch('back.php?type=ajouter', {
+            fetch('http://localhost/Web_dev_isen/parc_animalier/back.php?type=ajouter', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `nom=${nom}&prenom=${prenom}&age=${age}&email=${email}&motdepasse=${motdepasse}`
-            });
+                body: JSON.stringify({ nom, prenom, age, email, motdepasse }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Utilisateur ajouté avec succès.');
+                        localStorage.setItem('utilisateurConnecte', email);
+                        verifierConnexion();
+                    } else {
+                        alert('Erreur : ' + data.error);
+                    }
+                });
+        });
 
-            const result = await response.json();
-            alert(result.message || result.error);
-        }
-
-        async function verifierConnexion() {
-            const response = await fetch('back.php?type=verifier');
-            const result = await response.json();
-            document.getElementById('connexion-status').textContent = result.message || result.error;
-        }
-
-        async function connecterUtilisateur() {
+        document.getElementById('btnConnexion').addEventListener('click', () => {
             const email = document.getElementById('email').value;
             const motdepasse = document.getElementById('motdepasse').value;
 
-            const response = await fetch('back.php?type=connexion', {
+            fetch('http://localhost/Web_dev_isen/parc_animalier/back.php?type=connexion', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `email=${email}&motdepasse=${motdepasse}`
-            });
+                body: JSON.stringify({ email, motdepasse }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        localStorage.setItem('utilisateurConnecte', email);
+                        verifierConnexion();
+                    } else {
+                        alert('Erreur : ' + data.error);
+                    }
+                });
+        });
 
-            const result = await response.json();
-            alert(result.message || result.error);
+        document.getElementById('btnDeconnexion').addEventListener('click', () => {
+            localStorage.removeItem('utilisateurConnecte');
             verifierConnexion();
+        });
+
+        function verifierConnexion() {
+            const utilisateur = localStorage.getItem('utilisateurConnecte');
+            const statusConnexion = document.getElementById('statusConnexion');
+            if (utilisateur) {
+                statusConnexion.innerText = `Connecté en tant que : ${utilisateur}`;
+            } else {
+                statusConnexion.innerText = 'Non connecté.';
+            }
+        }
+        verifierConnexion();
+
+        /**************************************
+         * Gestion des commentaires
+         **************************************/
+        // Charger les commentaires depuis le serveur
+        function chargerCommentaires() {
+            fetch('http://localhost/Web_dev_isen/parc_animalier/back.php?type=recuperer_commentaires')
+                .then(response => response.json())
+                .then(data => {
+                    const listeCommentaires = document.getElementById('listeCommentaires');
+                    listeCommentaires.innerHTML = ''; // Réinitialiser la liste
+
+                    if (data.success) {
+                        data.commentaires.forEach(commentaire => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `<span class="comment-author">${commentaire.nom}</span> (${commentaire.email || "Anonyme"}) : <span class="comment">${commentaire.commentaire}</span>`;
+                            listeCommentaires.appendChild(li);
+                        });
+                    } else {
+                        alert('Erreur lors du chargement des commentaires.');
+                    }
+                });
         }
 
-        async function deconnecterUtilisateur() {
-            const response = await fetch('back.php?type=deconnexion');
-            const result = await response.json();
-            alert(result.message || result.error);
-            verifierConnexion();
-        }
+        // Ajouter un commentaire
+        document.getElementById('btnAjouterCommentaire').addEventListener('click', () => {
+            const nom = document.getElementById('nomCommentaire').value;
+            const email = document.getElementById('emailCommentaire').value || 'Anonyme';
+            const commentaire = document.getElementById('contenuCommentaire').value;
+
+            if (!nom || !commentaire) {
+                alert('Le nom et le commentaire sont obligatoires.');
+                return;
+            }
+
+            fetch('http://localhost/Web_dev_isen/parc_animalier/back.php?type=ajouter_commentaire', {
+                method: 'POST',
+                body: JSON.stringify({ nom, email, commentaire }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Commentaire ajouté avec succès.');
+                        document.getElementById('contenuCommentaire').value = '';
+                        document.getElementById('nomCommentaire').value = '';
+                        document.getElementById('emailCommentaire').value = '';
+                        chargerCommentaires();
+                    } else {
+                        alert('Erreur : ' + data.error);
+                    }
+                });
+        });
+
+        // Charger les commentaires au démarrage
+        chargerCommentaires();
     </script>
-</head>
-<body onload="verifierConnexion()">
-    <h1>Ajouter un utilisateur</h1>
-    <input type="text" id="nom" placeholder="Nom">
-    <input type="text" id="prenom" placeholder="Prénom">
-    <input type="number" id="age" placeholder="Âge">
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="motdepasse" placeholder="Mot de passe">
-    <button onclick="ajouterUtilisateur()">Ajouter</button>
-
-    <h2>Vérification de la connexion</h2>
-    <button onclick="connecterUtilisateur()">Se connecter</button>
-    <button onclick="deconnecterUtilisateur()">Déconnexion</button>
-    <p id="connexion-status"></p>
 </body>
 </html>
