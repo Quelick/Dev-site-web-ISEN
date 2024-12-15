@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Animaux</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { text-align: center; }
+        .animal-card {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px auto;
+            max-width: 500px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .animal-card img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            margin-right: 15px;
+            border-radius: 10px;
+        }
+        a { color: #007BFF; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Liste des Animaux</h1>
+    <div id="listeAnimaux"></div>
+
+    <script>
+        // Récupérer la liste des animaux
+        fetch("back_animaux.php")
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const container = document.getElementById("listeAnimaux");
+                    data.data.forEach(animal => {
+                        const card = document.createElement("div");
+                        card.className = "animal-card";
+                        card.innerHTML = `
+                            <img src="${animal.photo}" alt="${animal.nom}">
+                            <div>
+                                <a href="page_animal.html?id=${animal.id}">${animal.nom}</a>
+                                <p>${animal.description}</p>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                } else {
+                    alert("Erreur : " + data.error);
+                }
+            })
+            .catch(error => console.error("Erreur :", error));
+    </script>
+</body>
+</html>

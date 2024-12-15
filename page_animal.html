@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détails de l'Animal</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        img { width: 100%; border-radius: 10px; }
+        h1 { color: #007BFF; }
+    </style>
+</head>
+<body>
+    <div class="container" id="detailsAnimal"></div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const animalId = urlParams.get("id");
+
+        if (animalId) {
+            fetch(`back_animaux.php?id=${animalId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data.length > 0) {
+                        const animal = data.data[0];
+                        const container = document.getElementById("detailsAnimal");
+                        container.innerHTML = `
+                            <h1>${animal.nom_animal}</h1>
+                            <img src="${animal.photo_animal}" alt="${animal.nom_animal}">
+                            <p><strong>Description :</strong> ${animal.description_animal}</p>
+                            <p><strong>Enclos :</strong> ${animal.nom_enclos}</p>
+                            <p><strong>Description Enclos :</strong> ${animal.description_enclos}</p>
+                            <p><strong>Biome :</strong> ${animal.nom_biome}</p>
+                            <p><strong>Description Biome :</strong> ${animal.description_biome}</p>
+                        `;
+                    } else {
+                        alert("Aucun détail trouvé pour cet animal.");
+                    }
+                })
+                .catch(error => console.error("Erreur :", error));
+        } else {
+            alert("Aucun ID d'animal fourni.");
+        }
+    </script>
+</body>
+</html>
