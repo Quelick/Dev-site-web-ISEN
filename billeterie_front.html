@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billetterie</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: auto;
+        }
+        input, select, button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Acheter un billet</h1>
+        <input type="text" id="nom" placeholder="Votre nom">
+        <input type="email" id="email" placeholder="Votre email">
+        <select id="type_billet">
+            <option value="">Choisissez un type de billet</option>
+            <option value="Billet Adulte - 10€">Billet Adulte - 10€</option>
+            <option value="Billet Enfant - 5€">Billet Enfant - 5€</option>
+        </select>
+        <input type="number" id="quantite" placeholder="Quantité">
+        <button id="acheter">Acheter</button>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        document.getElementById('acheter').addEventListener('click', () => {
+            const nom = document.getElementById('nom').value;
+            const email = document.getElementById('email').value;
+            const type_billet = document.getElementById('type_billet').value;
+            const quantite = document.getElementById('quantite').value;
+            const message = document.getElementById('message');
+
+            message.textContent = ''; // Reset message
+            message.className = '';
+
+            if (!nom || !email || !type_billet || !quantite) {
+                message.textContent = 'Veuillez remplir tous les champs.';
+                message.className = 'error';
+                return;
+            }
+
+            fetch('http://localhost/Web_dev_isen/parc_animalier/billeterie_back.php?type=acheter_billet', {
+                method: 'POST',
+                body: JSON.stringify({ nom, email, type_billet, quantite }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        message.textContent = data.message;
+                        message.className = 'success';
+                    } else {
+                        message.textContent = data.error;
+                        message.className = 'error';
+                    }
+                })
+                .catch(error => {
+                    message.textContent = 'Erreur de connexion au serveur.';
+                    message.className = 'error';
+                    console.error(error);
+                });
+        });
+    </script>
+</body>
+</html>
